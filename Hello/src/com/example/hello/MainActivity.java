@@ -11,7 +11,7 @@ public class MainActivity extends Activity {
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
-		Log.i("Main Activity", "I'm in onDestroy");		
+		Log.i("Main Activity", "I'm in onDestroy");
 	}
 
 
