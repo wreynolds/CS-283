@@ -63,7 +63,7 @@ public class WorkerThread extends Thread {
 			return;
 		}
 		
-		if (payload.startsWith("ACKNOWLEDGED")) {
+		if (payload.startsWith("ACK")) {
 			onAcknowledgedRequested(payload);
 			return;
 		}
@@ -286,6 +286,9 @@ public class WorkerThread extends Thread {
 				send("> " + message, dst.address, dst.port);
 				Server.nameToMsg.get(dstName).add(message);
 				
+				send("> SUCCESS::Message sent to " + dstName + "\n", 
+						address, port);
+				
 				try {
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
@@ -297,8 +300,6 @@ public class WorkerThread extends Thread {
 							dst.address, dst.port);
 				}
 				
-				send("> SUCCESS::Message sent to " + dstName + "\n", 
-						address, port);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -391,6 +392,7 @@ public class WorkerThread extends Thread {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				return;
 			}
 			
 			if (Server.groupsToNames.containsKey(groupName)) {
@@ -484,7 +486,6 @@ public class WorkerThread extends Thread {
 						try {
 							send("> " +  Server.nameToMsg.get(s).lastElement(),
 									dst.address, dst.port);
-							Server.nameToMsg.get(s).add(message);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -717,6 +718,7 @@ public class WorkerThread extends Thread {
 	}
 	
 	// Payload contents: SHUTDOWN
+	@SuppressWarnings("static-access")
 	private void onShutdownRequested(String payload) {
 		InetAddress address = this.rxPacket.getAddress();
 		InetAddress localHost = null;
@@ -726,31 +728,36 @@ public class WorkerThread extends Thread {
 			e1.printStackTrace();
 		}
 		
-		if (address.equals(localHost))
-		{
-			try {
-				send("SHUTTING DOWN\nWAITING FOR ALL ACTIVE CLIENTS TO TERMINATE\n", 
-						this.rxPacket.getAddress(), this.rxPacket.getPort());
-				Server.socket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}	
-		}
-		else
-		{
-			try {
-				send("UNAUTHORIZED TO SHUT DOWN\n", this.rxPacket.getAddress(), 
-						this.rxPacket.getPort());
+		try {
+			if (address.getLocalHost().getHostAddress().equals(localHost))
+			{
+				try {
+					send("> SHUTTING DOWN\nWAITING FOR ALL ACTIVE CLIENTS TO TERMINATE\n", 
+							this.rxPacket.getAddress(), this.rxPacket.getPort());
+					Server.socket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}	
 			}
-			catch (IOException e) {
-				e.printStackTrace();
+			else
+			{
+				try {
+					send("> UNAUTHORIZED TO SHUT DOWN\n", this.rxPacket.getAddress(), 
+							this.rxPacket.getPort());
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
 	private void onBadRequest(String payload) {
 		try {
-			send("BAD REQUEST\n", this.rxPacket.getAddress(),
+			send("> BAD REQUEST\n", this.rxPacket.getAddress(),
 					this.rxPacket.getPort());
 		} catch (IOException e) {
 			e.printStackTrace();
