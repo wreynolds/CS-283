@@ -1,0 +1,39 @@
+After receiving a message, the user must do an ACKNOWLEDGE. If reconnecting to the server, or if the client IP Address changes, the user must do an UPDATE_IP. After doing a PULL (or and UPDATE_IP which automatically does a PULL) wait for END OF MESSAGES to appear before acknowledgement, if message does not appear (~3s wait) do another PULL.  Any user may add any other user to a group. Users may remove only themselves from a group. LIST_GROUPS displays all the groups and idicates if the user is in the group (+ signifies memeber, - signifies not a member). Anyone connected to the server can list all the registered users.
+
+REGISTER:
+	REGISTER, <name>
+
+UNREGISTER:
+	UNREGISTER, <name>
+
+UPDATE_IP:
+	UPDATE_IP, <name>
+
+SEND:
+	SEND, <name>, <dest_name>, <msg>
+
+JOIN:
+	JOIN, <name>, <group_name>
+
+LEAVE:
+	LEAVE, <name>, <group_name>
+
+GROUP_SEND:
+	GROUP_SEND, <name>, <group_name>, <msg>
+
+ACKNOWLEDGED:
+	ACKNOWLEDGED, <name>
+
+PULL:
+	PULL, <name>
+
+LIST_GROUPS:
+	LIST_GROUPS, <name>
+
+LIST_USERS:
+	LIST_USERS
+
+SHUTDOWN:
+	SHUTDOWN
+
+	
